@@ -1,0 +1,4 @@
+---
+rabbitmq_plugins: []
+rabbitmq_admin: { name: 'admin', password: 'admin' }
+rabbitmq_users: []

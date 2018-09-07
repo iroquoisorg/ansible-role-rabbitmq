@@ -1,0 +1,49 @@
+---
+- name: install rabbitmq
+  apt:
+    package: rabbitmq-server
+    state: present
+
+- name: Install config file
+  copy:
+    src: rabbitmq.config
+    dest: /etc/rabbitmq/rabbitmq.config
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart rabbitmq
+
+- name: Delete default user
+  rabbitmq_user:
+    user: guest
+    state: absent
+    force: yes
+
+- name: Create admin user
+  rabbitmq_user:
+    user: "{{ rabbitmq_admin.name }}"
+    state: present
+    password: "{{ rabbitmq_admin.password }}"
+    vhost: /
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    tags: administrator
+
+- name: Create users
+  rabbitmq_user:
+    user: "{{ item.name }}"
+    state: present
+    password: "{{ item.password }}"
+    vhost: /
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+  with_items: "{{ rabbitmq_users }}"
+
+- name: enable rabbitmq plugins
+  rabbitmq_plugin:
+    names: "{{ item }}"
+    state: enabled
+  with_items: "{{ rabbitmq_plugins }}"
+  notify: restart rabbitmq
