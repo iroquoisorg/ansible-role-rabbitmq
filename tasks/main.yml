@@ -13,6 +13,15 @@
     mode: 0644
   notify: restart rabbitmq
 
+- name: Wait for rabbitMQ to open port 4369
+  wait_for:
+    host: localhost
+    port: 4369
+    delay: 10
+    connect_timeout: 5
+    timeout: 420
+    state: started
+
 - name: Delete default user
   rabbitmq_user:
     user: guest
